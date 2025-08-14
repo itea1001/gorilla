@@ -40,7 +40,7 @@ class OSSHandler(BaseHandler, EnforceOverrides):
         self.client = OpenAI(base_url=self.base_url, api_key="EMPTY")
 
     @override
-    def inference(self, test_entry: dict, include_input_log: bool, exclude_state_log: bool):
+    def inference(self, test_entry: dict, include_input_log: bool, exclude_state_log: bool, random_select_num: int = 0, seed: int = 42):
         """
         OSS models have a different inference method.
         They needs to spin up a server first and then send requests to it.
@@ -363,7 +363,7 @@ class OSSHandler(BaseHandler, EnforceOverrides):
         return api_response, end_time - start_time
 
     @override
-    def _pre_query_processing_prompting(self, test_entry: dict) -> dict:
+    def _pre_query_processing_prompting(self, test_entry: dict, random_select_num: int = 0, seed: int = 42) -> dict:
         functions: list = test_entry["function"]
         test_category: str = test_entry["id"].rsplit("_", 1)[0]
 

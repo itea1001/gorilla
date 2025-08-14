@@ -148,6 +148,12 @@ def generate(
         "--run-ids",
         help="If true, also run the test entry mentioned in the test_case_ids_to_generate.json file, in addition to the --test_category argument.",
     ),
+    random_select_num: int = typer.Option(
+        0,
+        "--random-select-num",
+        help="The number of functions to randomly select from the test category.",
+    ),
+    seed: int = typer.Option(42, "--seed", help="The seed for the random number generator."),
 ):
     """
     Generate the LLM response for one or more models on a test-category (same as openfunctions_evaluation.py).
@@ -168,6 +174,8 @@ def generate(
         result_dir=result_dir,
         allow_overwrite=allow_overwrite,
         run_ids=run_ids,
+        random_select_num=random_select_num,
+        seed=seed,
     )
     load_dotenv(dotenv_path=DOTENV_PATH, verbose=True, override=True)  # Load the .env file
     generation_main(args)

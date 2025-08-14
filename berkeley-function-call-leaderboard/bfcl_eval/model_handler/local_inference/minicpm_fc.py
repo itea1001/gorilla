@@ -43,7 +43,7 @@ class MiniCPMFCHandler(OSSHandler):
         return formatted_prompt
 
     @override
-    def _pre_query_processing_prompting(self, test_entry: dict) -> dict:
+    def _pre_query_processing_prompting(self, test_entry: dict, random_select_num: int = 0, seed: int = 42) -> dict:
         functions: list = test_entry["function"]
         test_category: str = test_entry["id"].rsplit("_", 1)[0]
 

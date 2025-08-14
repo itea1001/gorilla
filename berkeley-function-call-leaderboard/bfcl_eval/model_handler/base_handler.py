@@ -33,7 +33,14 @@ class BaseHandler:
         self.temperature = temperature
         self.is_fc_model = False  # Whether the model is a function calling model
 
-    def inference(self, test_entry: dict, include_input_log: bool, exclude_state_log: bool):
+    def inference(
+        self,
+        test_entry: dict,
+        include_input_log: bool,
+        exclude_state_log: bool,
+        random_select_num: int = 0,
+        seed: int = 42,
+    ):
         # This method is used to retrive model response for each model.
 
         # FC model
@@ -52,7 +59,10 @@ class BaseHandler:
                     test_entry, include_input_log, exclude_state_log
                 )
             else:
-                return self.inference_single_turn_prompting(test_entry, include_input_log)
+                if "gpt" in self.model_name:
+                    return self.inference_single_turn_prompting(test_entry, include_input_log, random_select_num, seed)
+                else:
+                    return self.inference_single_turn_prompting(test_entry, include_input_log)
 
     @final
     def inference_multi_turn_FC(
@@ -618,9 +628,13 @@ class BaseHandler:
 
     @final
     def inference_single_turn_prompting(
-        self, test_entry: dict, include_input_log: bool
+        self,
+        test_entry: dict,
+        include_input_log: bool,
+        random_select_num: int = 0,
+        seed: int = 42,
     ) -> tuple[any, dict]:
-        inference_data: dict = self._pre_query_processing_prompting(test_entry)
+        inference_data: dict = self._pre_query_processing_prompting(test_entry, random_select_num, seed)
         inference_data = self.add_first_turn_message_prompting(
             inference_data, test_entry["question"][0]
         )
@@ -808,7 +822,7 @@ class BaseHandler:
         """
         raise NotImplementedError
 
-    def _pre_query_processing_prompting(self, test_entry: dict) -> dict:
+    def _pre_query_processing_prompting(self, test_entry: dict, random_select_num: int = 0, seed: int = 42) -> dict:
         """
         Preprocess the testset entry before sending it to the model.
         This might includes transforming the input user message into the format expected by the model, extract out the system prompt (if any), and any other necessary preprocessing steps. Those steps can also be done in the `add_first_turn_message_prompting` and `_add_next_turn_user_message_prompting` methods, but it's usually cleaner to do it here.

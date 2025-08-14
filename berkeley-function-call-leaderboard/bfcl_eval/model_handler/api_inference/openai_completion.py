@@ -17,7 +17,10 @@ from bfcl_eval.model_handler.utils import (
     system_prompt_pre_processing_chat_model,
 )
 from openai import OpenAI, RateLimitError
-
+import sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
+from tool_adv_baseline.utils import get_tot_function_list, random_select_function_list
 
 class OpenAICompletionsHandler(BaseHandler):
     def __init__(self, model_name, temperature) -> None:
@@ -203,8 +206,17 @@ class OpenAICompletionsHandler(BaseHandler):
             store=False,
         )
 
-    def _pre_query_processing_prompting(self, test_entry: dict) -> dict:
-        functions: list = test_entry["function"]
+    def _pre_query_processing_prompting(
+        self,
+        test_entry: dict,
+        random_select_num: int = 0,
+        seed: int = 42,
+    ) -> dict:
+        if random_select_num == 0:
+            functions: list = test_entry["function"]
+        else:
+            functions: list = random_select_function_list(random_select_num=random_select_num, seed=seed)
+            functions.extend(test_entry["function"])
         test_category: str = test_entry["id"].rsplit("_", 1)[0]
 
         functions = func_doc_language_specific_pre_processing(functions, test_category)

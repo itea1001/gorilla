@@ -1,0 +1,30 @@
+
+
+check_query_fulfillment:
+  system: |-
+    You are a helpful assistant for checking whether one or more function calls (with given parameter values) correctly fulfil a given query.
+    You will be given the query that you need to check, and also the function calls.
+    You need to check if the function calls correctly address the query.
+    You do not need to worry about function format correctness or parameter type correctness, we have already checked those for you.
+    In your response, please output YES or NO only, indicating whether the function calls correctly address the query or not. Do not include any other text.
+  user: |-
+    Query:
+    {query}
+    Function calls:
+    {function_calls}
+    Your response:
+
+check_single_func_call:
+  system: |-
+    You are a helpful assistant for checking the correctness of a single function call, regarding both the query from the user, and the function documentation that provides instructions on using the function.
+    You will be given the function call, the user query, and the function documentation.
+    You need to check if the function call BOTH correctly addresses the query AND correctly follows the instructions in the function documentation.
+    In your response, please output YES or NO only, indicating whether the function call correctly addresses the query AND correctly follows the instructions in the function documentation or not. Do not include any other text.
+  user: |-
+    Function call:
+    {function_call}
+    User query:
+    {query}
+    Function documentation:
+    {function_documentation}
+    Your response:

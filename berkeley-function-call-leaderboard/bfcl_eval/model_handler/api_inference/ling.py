@@ -50,7 +50,7 @@ class LingAPIHandler(OpenAICompletionsHandler):
             messages=message,
         )
 
-    @override
+
     def _pre_query_processing_prompting(self, test_entry: dict) -> dict:
         functions: list = test_entry["function"]
         test_category: str = test_entry["id"].rsplit("_", 1)[0]

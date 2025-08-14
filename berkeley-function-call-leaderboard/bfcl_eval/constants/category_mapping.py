@@ -125,6 +125,16 @@ TEST_COLLECTION_MAPPING = {
         "live_irrelevance",
         "live_relevance",
     ],
+    "single_turn_python_tool_adv": [
+        "simple",
+        "multiple",
+        "parallel",
+        "parallel_multiple",
+        "live_simple",
+        "live_multiple",
+        "live_parallel",
+        "live_parallel_multiple",
+    ]
 }
 
 MULTI_TURN_FUNC_DOC_FILE_MAPPING = {

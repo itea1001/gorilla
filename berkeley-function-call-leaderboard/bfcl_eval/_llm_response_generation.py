@@ -171,7 +171,14 @@ def process_multi_turn_test_case(test_cases):
     return test_cases
 
 
-def multi_threaded_inference(handler, test_case, include_input_log, exclude_state_log):
+def multi_threaded_inference(
+    handler,
+    test_case,
+    include_input_log,
+    exclude_state_log,
+    random_select_num = 0,
+    seed = 42,
+):
 
     assert type(test_case["function"]) is list
 
@@ -180,7 +187,7 @@ def multi_threaded_inference(handler, test_case, include_input_log, exclude_stat
     while True:
         try:
             result, metadata = handler.inference(
-                deepcopy(test_case), include_input_log, exclude_state_log
+                deepcopy(test_case), include_input_log, exclude_state_log, random_select_num, seed
             )
             break  # Success, exit the loop
         except Exception as e:
@@ -257,6 +264,8 @@ def generate_results(args, model_name, test_cases_total):
                         test_case,
                         args.include_input_log,
                         args.exclude_state_log,
+                        random_select_num=args.random_select_num,
+                        seed=args.seed,
                     )
                     futures.append(future)
 

@@ -20,11 +20,14 @@ def main():
 
     all_avr_acc = []
 
-    save_img = False
+    save_img = True
 
-    random_select_nums = [0,1,2,4,8,16,32,64,128,256]
+    # gen_model_name = "gpt-4o-mini-2024-07-18"
+
+    gen_model_name = "gpt-4.1-2025-04-14"
+
+    random_select_nums = [0,1,2,4,8,16,32,64,128,256, 512]
     for random_select_num in random_select_nums:
-        gen_model_name = "gpt-4o-mini-2024-07-18"
         test_categories = [
             "simple",
             "parallel",
@@ -75,12 +78,7 @@ def main():
     plt.grid(True, alpha=0.3)
     
     if save_img:
-        plt.savefig('./accuracy_plot.png', dpi=300)
-
-
-                
-            
-
+        plt.savefig(f'./accuracy_plot_{gen_model_name}.png', dpi=300)
 
 
 if __name__ == "__main__":

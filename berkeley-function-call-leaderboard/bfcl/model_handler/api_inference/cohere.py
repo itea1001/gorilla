@@ -106,7 +106,7 @@ class CohereHandler(BaseHandler):
         self,
         messages: list,
         tools: list[cohere.types.ToolV2]
-    ) -> tuple[cohere.types.ChatResponse, float]:
+    ) -> tuple:
         start_time = time.time()
         api_response = self.client.chat(
             model=self.model_name.replace("-FC", ""),

@@ -12,6 +12,8 @@ from bfcl.constants.type_mappings import GORILLA_TO_OPENAPI
 from bfcl.model_handler.model_style import ModelStyle
 from bfcl.model_handler.parser.java_parser import parse_java_function_call
 from bfcl.model_handler.parser.js_parser import parse_javascript_function_call
+from bfcl.model_handler.parser.json_parser import parse_json_function_call
+from bfcl.model_handler.parser.xml_parser import parse_xml_function_call
 from tenacity import (
     retry,
     retry_if_exception_message,
@@ -238,6 +240,10 @@ def ast_parse(input_str, language="Python"):
         )  # Remove the [ and ] from the string
     elif language == "JavaScript":
         return parse_javascript_function_call(input_str[1:-1])
+    elif language == "JSON":
+        return parse_json_function_call(input_str)
+    elif language == "XML":
+        return parse_xml_function_call(input_str)
     else:
         raise NotImplementedError(f"Unsupported language: {language}")
 

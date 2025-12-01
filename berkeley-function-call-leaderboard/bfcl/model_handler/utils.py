@@ -311,16 +311,27 @@ def resolve_ast_by_type(value):
     return output
 
 
-def system_prompt_pre_processing_chat_model(prompts, function_docs, test_category):
+def system_prompt_pre_processing_chat_model(prompts, function_docs, test_category, ret_fmt="python"):
     """
     Add a system prompt to the chat model to instruct the model on the available functions and the expected response format.
     If the prompts list already contains a system prompt, append the additional system prompt content to the existing system prompt.
+    
+    Args:
+        prompts: List of message dicts
+        function_docs: Function documentation string
+        test_category: Test category name
+        ret_fmt: Return format - "python", "json", or "xml"
     """
     assert type(prompts) == list
 
     system_prompt_template = DEFAULT_SYSTEM_PROMPT
 
     system_prompt = system_prompt_template.format(functions=function_docs)
+    
+    # Add format-specific instructions if not using default Python format
+    format_instructions = get_format_instructions(ret_fmt)
+    if format_instructions:
+        system_prompt += format_instructions
 
     # System prompt must be in the first position
     # If the question comes with a system prompt, append its content at the end of the chat template.
@@ -807,3 +818,60 @@ def retry_with_backoff(
         return wrapped
 
     return decorator
+
+
+def parse_prompt_variation(prompt_variation_str: Optional[str]) -> dict:
+    """
+    Parse the prompt variation parameter string.
+    
+    Args:
+        prompt_variation_str: String like "ret_fmt=json" or "ret_fmt=xml"
+        
+    Returns:
+        Dictionary with parsed parameters, e.g., {"ret_fmt": "json"}
+        Returns {"ret_fmt": "python"} if None or invalid format
+    """
+    if not prompt_variation_str:
+        return {"ret_fmt": "python"}
+    
+    # Parse key=value format
+    params = {}
+    for param in prompt_variation_str.split("&"):
+        if "=" in param:
+            key, value = param.split("=", 1)
+            params[key.strip()] = value.strip().lower()
+    
+    # Validate ret_fmt
+    ret_fmt = params.get("ret_fmt", "python")
+    if ret_fmt not in ["python", "json", "xml"]:
+        print(f"Warning: Invalid ret_fmt '{ret_fmt}'. Defaulting to 'python'.")
+        ret_fmt = "python"
+    
+    return {"ret_fmt": ret_fmt}
+
+
+def get_format_instructions(ret_fmt: str) -> str:
+    """
+    Get format-specific instructions for the given return format.
+    
+    Args:
+        ret_fmt: One of "python", "json", "xml"
+        
+    Returns:
+        Instruction string to append to system prompt
+    """
+    if ret_fmt == "json":
+        return (
+            "\n\nIMPORTANT: Output your function calls in JSON format as an array of objects. "
+            "Each object should have 'function' and 'parameters' keys. "
+            'Example format: [{"function": "function_name", "parameters": {"param1": "value1", "param2": 123}}]'
+        )
+    elif ret_fmt == "xml":
+        return (
+            "\n\nIMPORTANT: Output your function calls in XML format. "
+            "Use <function_calls> as the root element, with <function> elements for each call. "
+            "Each function should have a 'name' attribute and <arg> elements for parameters. "
+            'Example format: <function_calls><function name="function_name"><arg name="param1">value1</arg><arg name="param2">123</arg></function></function_calls>'
+        )
+    else:  # python
+        return ""  # No change to existing Python format instructions

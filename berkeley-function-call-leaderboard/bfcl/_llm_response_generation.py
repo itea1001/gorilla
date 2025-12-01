@@ -63,8 +63,14 @@ def get_args():
     return args
 
 
-def build_handler(model_name, temperature):
+def build_handler(model_name, temperature, prompt_variation=None):
     handler = MODEL_CONFIG_MAPPING[model_name].model_handler(model_name, temperature)
+    # Set prompt_variation on the handler
+    if prompt_variation:
+        from bfcl.model_handler.utils import parse_prompt_variation
+        handler.prompt_variation = parse_prompt_variation(prompt_variation)
+    else:
+        handler.prompt_variation = {"ret_fmt": "python"}
     return handler
 
 
@@ -214,13 +220,18 @@ def multi_threaded_inference(handler, test_case, include_input_log, exclude_stat
     }
 
     result_to_write.update(metadata)
+    
+    # Add prompt_variation metadata if present
+    if hasattr(handler, 'prompt_variation') and handler.prompt_variation:
+        result_to_write["prompt_variation"] = handler.prompt_variation
 
     return result_to_write
 
 
 def generate_results(args, model_name, test_cases_total):
     update_mode = args.allow_overwrite
-    handler = build_handler(model_name, args.temperature)
+    prompt_variation = getattr(args, 'prompt_variation', None)
+    handler = build_handler(model_name, args.temperature, prompt_variation)
 
     if handler.model_style == ModelStyle.OSSMODEL:
         # batch_inference will handle the writing of results

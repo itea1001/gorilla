@@ -281,8 +281,9 @@ class GeminiHandler(BaseHandler):
                 test_entry["question"][round_idx]
             )
 
+        ret_fmt = getattr(self, 'prompt_variation', {}).get('ret_fmt', 'python')
         test_entry["question"][0] = system_prompt_pre_processing_chat_model(
-            test_entry["question"][0], functions, test_category
+            test_entry["question"][0], functions, test_category, ret_fmt
         )
         # Gemini has system prompt in a specific field
         system_prompt = extract_system_prompt(test_entry["question"][0])

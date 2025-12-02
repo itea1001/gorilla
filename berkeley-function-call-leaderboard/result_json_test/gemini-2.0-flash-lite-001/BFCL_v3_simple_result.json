@@ -1,0 +1,1 @@
+{"id": "simple_0", "result": "```json\n[\n  {\n    \"function\": \"calculate_triangle_area\",\n    \"parameters\": {\n      \"base\": 10,\n      \"height\": 5,\n      \"unit\": \"units\"\n    }\n  }\n]\n```", "input_token_count": 451, "output_token_count": 60, "latency": 0.7911458015441895, "prompt_variation": {"ret_fmt": "json"}}

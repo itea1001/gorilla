@@ -26,6 +26,30 @@ from dotenv import load_dotenv
 from tqdm import tqdm
 
 
+def get_language_from_prompt_variation(prompt_variation_dict):
+    """
+    Extract the output language/format from prompt_variation metadata.
+    
+    Args:
+        prompt_variation_dict: Dictionary containing prompt variation parameters, 
+                             e.g. {"ret_fmt": "json"}
+    
+    Returns:
+        Language string: "JSON", "XML", or "Python" (default)
+    """
+    if not prompt_variation_dict or not isinstance(prompt_variation_dict, dict):
+        return "Python"
+    
+    ret_fmt = prompt_variation_dict.get("ret_fmt", "python").lower()
+    
+    if ret_fmt == "json":
+        return "JSON"
+    elif ret_fmt == "xml":
+        return "XML"
+    else:
+        return "Python"
+
+
 def get_handler(model_name):
     return MODEL_CONFIG_MAPPING[model_name].model_handler(
         model_name, temperature=0
@@ -181,8 +205,14 @@ def relevance_file_runner(
         decoded_result = None
         decode_error = None
 
+        # Determine language from prompt_variation metadata if available
+        # Fall back to Python for backwards compatibility
+        item_language = "Python"
+        if "prompt_variation" in model_result[i]:
+            item_language = get_language_from_prompt_variation(model_result[i]["prompt_variation"])
+
         try:
-            decoded_result = handler.decode_ast(model_result_item, language="Python")
+            decoded_result = handler.decode_ast(model_result_item, language=item_language)
             # Decode successfully, which means the model output is in valid function call format
             contain_func_call = True
             if is_empty_output(decoded_result):
@@ -262,9 +292,15 @@ def ast_file_runner(
         prompt_item = prompt[i]["function"]
         possible_answer_item = possible_answer[i]["ground_truth"]
 
+        # Determine language from prompt_variation metadata if available
+        # Fall back to the passed language parameter for backwards compatibility
+        item_language = language
+        if "prompt_variation" in model_result[i]:
+            item_language = get_language_from_prompt_variation(model_result[i]["prompt_variation"])
+
         try:
             model_result_item_raw = model_result_item
-            model_result_item = handler.decode_ast(model_result_item, language)
+            model_result_item = handler.decode_ast(model_result_item, item_language)
         except Exception as e:
             result.append(
                 {
